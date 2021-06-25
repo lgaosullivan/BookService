@@ -29,20 +29,18 @@ namespace BookService.Controllers
 
         // GET: api/Books/5
         [HttpGet("{id}")]
-    public async Task<ActionResult<Books>> GetBooks(int id)
-    {
-            var books = await _context.Books
-                //.Include(i => i.Categories)
-                    .FindAsync(id);
-                //.Include(i => i.Category);
-
-        if (books == null)
+        public async Task<ActionResult<Books>> GetBooks(int id)
         {
-            return NotFound();
-        }
+                var books = await _context.Books
+                        .FindAsync(id);
 
-        return books;
-    }
+            if (books == null)
+            {
+                return NotFound();
+            }
+
+            return books;
+        }
 
     // PUT: api/Books/5 api/book/{bookId}/update 
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -58,18 +56,11 @@ namespace BookService.Controllers
 
         try
         {
+            _context.Update(books);
             await _context.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
-            //if (!BooksExists(id))
-            //{
-            //    return NotFound();
-            //}
-            //else
-            //{
-            //    throw;
-            //}
         }
 
             return CreatedAtAction("GetBooks", new { id = books.Id }, books);
@@ -86,26 +77,5 @@ namespace BookService.Controllers
 
         return CreatedAtAction("GetBooks", new { id = books.Id }, books.Id);
     }
-
-    // DELETE: api/Books/5
-    //[HttpDelete("{id}")]
-    //public async Task<IActionResult> DeleteBooks(int id)
-    //{
-    //    var books = await _context.Books.FindAsync(id);
-    //    if (books == null)
-    //    {
-    //        return NotFound();
-    //    }
-
-    //    _context.Books.Remove(books);
-    //    await _context.SaveChangesAsync();
-
-    //    return NoContent();
-    //}
-
-    //private bool BooksExists(int id)
-    //{
-    //    return _context.Books.Any(e => e.Id == id);
-    //}
     }
 }
