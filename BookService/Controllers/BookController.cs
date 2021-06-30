@@ -24,7 +24,11 @@ namespace BookService.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Books>>> GetBooks()
         {
-            return await _context.Books.ToListAsync();
+            var books
+                   = _context.Books
+                  .Include(i => i.Categories);
+
+            return await books.ToListAsync();
         }
 
         // GET: api/Books/5
@@ -42,40 +46,48 @@ namespace BookService.Controllers
             return books;
         }
 
-    // PUT: api/Books/5 api/book/{bookId}/update 
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    [HttpPut("{id}/update")]
-    public async Task<IActionResult> PutBooks(int id, Books books)
-    {
-        if (id != books.Id)
+        // PUT: api/Books/5 api/book/{bookId}/update 
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}/update")]
+        public async Task<IActionResult> PutBooks(int id, Books books)
         {
-            return BadRequest();
-        }
+            if (id != books.Id)
+            {
+                return BadRequest();
+            }
 
-        _context.Entry(books).State = EntityState.Modified;
+            _context.Entry(books).State = EntityState.Modified;
 
-        try
-        {
-            _context.Update(books);
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-        }
+            try
+            {
+                _context.Books.
+                    Update(books);
+
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+            }
 
             return CreatedAtAction("GetBooks", new { id = books.Id }, books);
-    }
+        }
 
-    // POST: api/book/create
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    [HttpPost("create")]
-    public async Task<ActionResult<Books>> PostBooks(Books books)
-    {
-        _context.Books.Add(books);
-            _context.Categories.Add((Category)books.Categories);
-            await _context.SaveChangesAsync();
+        // POST: api/book/create
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost("create")]
+        public async Task<ActionResult<Books>> PostBooks(Books books)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Books.Add(books);
 
-        return CreatedAtAction("GetBooks", new { id = books.Id }, books.Id);
-    }
+                await _context.SaveChangesAsync();
+                return CreatedAtAction("GetBooks", new { books });
+            }
+            else 
+            {
+                return BadRequest(ModelState);
+            }
+        }
     }
 }

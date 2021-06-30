@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BookService.Models
 {
-    public class Books
+    public partial class Books
     {
             [Key]
             public int Id { get; set; }
@@ -15,11 +15,11 @@ namespace BookService.Models
         public int CategoryId { get; set; }
         public string BookName { get; set; }
         public string Author { get; set; }
+        [DataType(DataType.Date)]
         public DateTime Registration { get; set; }
-        public Category Categories { get; set; }
         public string Description { get; set; }
 
-            //[InverseProperty("Book")]
-            //public virtual ICollection<Category> Categories { get; set; }
+        [InverseProperty("Book")]
+        public virtual ICollection<Category> Categories { get; set; }
     }
 }
